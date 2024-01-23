@@ -2,17 +2,22 @@ use std::{fs::File, thread};
 
 use core::time;
 use daemonize::Daemonize;
+use notification::NotificationData;
 use notify_rust::Notification;
 
-pub fn start_daemon() {
-    let stdout = File::create("/tmp/daemon.out").unwrap();
-    let stderr = File::create("/tmp/daemon.err").unwrap();
+pub mod notification;
+
+const PID_PATH: &str = "/tmp/memo-mate.pid";
+
+pub fn start_daemon(mut notifications: Vec<NotificationData>) {
+    let stdout = File::create("/tmp/memo-mate.out").unwrap();
+    let stderr = File::create("/tmp/memo-mate.err").unwrap();
 
     let daemon = Daemonize::new()
-        .pid_file("/tmp/test.pid") // Every daemon needs a pidfile
-        .stdout(stdout) // Redirect stdout to `/tmp/daemon.out`
-        .stderr(stderr) // Redirect stderr to `/tmp/daemon.err`
-        .umask(0o027); // Set the umask for the process
+        .pid_file(PID_PATH)
+        .stdout(stdout)
+        .stderr(stderr)
+        .umask(0o027);
 
     match daemon.start() {
         Ok(_) => println!("Daemon started successfully"),
@@ -20,25 +25,29 @@ pub fn start_daemon() {
     }
 
     loop {
-        Notification::new()
-            .summary("Test notificaton")
-            .appname("MemoMate")
-            .show()
-            .unwrap();
-        thread::sleep(time::Duration::from_secs(10));
+        for notification_data in notifications.iter_mut() {
+            if notification_data.is_ready() {
+                Notification::new()
+                    .summary(&notification_data.title)
+                    .appname("MemoMate")
+                    .show()
+                    .unwrap();
+                notification_data.reset();
+            }
+        }
+        thread::sleep(time::Duration::from_secs(1));
     }
 }
 
 pub fn stop_daemon() {
     // Read the PID from the pidfile
-    let pid = std::fs::read_to_string("/tmp/test.pid")
+    let pid = std::fs::read_to_string(PID_PATH)
         .expect("Unable to read pid file")
         .trim()
         .parse::<u32>()
         .expect("Unable to parse pid");
 
     // Send a signal to terminate the daemon process
-    // Depending on your system and requirements, you might need a different approach
     nix::sys::signal::kill(
         nix::unistd::Pid::from_raw(pid as i32),
         nix::sys::signal::Signal::SIGTERM,

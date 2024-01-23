@@ -1,6 +1,6 @@
 use clap::Command;
 
-use memo_mate::{start_daemon, stop_daemon};
+use memo_mate::{notification::get_notifications, start_daemon, stop_daemon};
 
 fn cli() -> Command {
     Command::new("memo-mate")
@@ -21,7 +21,10 @@ fn main() {
     let matches = cli().get_matches();
 
     match matches.subcommand() {
-        Some(("start", _)) => start_daemon(),
+        Some(("start", _)) => {
+            let notifications = get_notifications();
+            start_daemon(notifications);
+        }
         Some(("stop", _)) => stop_daemon(),
         Some(("list", _)) => println!("TODO"),
         Some(("create", _)) => println!("TODO"),
