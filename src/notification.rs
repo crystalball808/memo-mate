@@ -1,5 +1,5 @@
 use anyhow::{bail, Result};
-use std::fs::{read_to_string, File};
+use std::fs::File;
 use std::io::{self, Write};
 use std::time::{Duration, Instant};
 
@@ -19,12 +19,11 @@ impl NotificationData {
         self.instant = reseted;
     }
 }
-const NOTIFICATIONS_FILE_PATH: &'static str = "./notifications.memo";
+pub const NOTIFICATIONS_FILE_PATH: &'static str = "./notifications.memo";
 
-pub fn get_notifications() -> Result<Vec<NotificationData>> {
+pub fn parse_notifications(content: String) -> Result<Vec<NotificationData>> {
     // Sit Straight;10
     // Drink some water;25
-    let content = read_to_string(NOTIFICATIONS_FILE_PATH)?;
     let rows: Vec<NotificationData> = content
         .split("\n")
         .into_iter()
