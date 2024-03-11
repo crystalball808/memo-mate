@@ -33,11 +33,11 @@ pub fn get_notifications() -> Result<Vec<NotificationData>> {
             let args: Vec<&str> = line.split(";").collect();
 
             let Some(title) = args.get(0) else {
-                bail!("Memo file, line {line}: Tried to read interval")
+                bail!("Memo file, line {index}: Tried to read interval")
             };
 
             let Some(interval_secs) = args.get(1) else {
-                bail!("Memo file, line {line}: Tried to read interval")
+                bail!("Memo file, line {index}: Tried to read interval")
             };
             let interval_secs: u64 = interval_secs.parse()?;
 
