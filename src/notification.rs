@@ -1,6 +1,4 @@
 use anyhow::{bail, Result};
-use std::fs::File;
-use std::io::{self, Write};
 use std::time::{Duration, Instant};
 
 pub struct NotificationData {
@@ -52,9 +50,16 @@ pub fn parse_notifications(content: String) -> Result<Vec<NotificationData>> {
     Ok(rows)
 }
 
-fn write_notification_to_file() -> io::Result<()> {
-    let mut file_handle = File::create("./notifications.memo")?;
-    file_handle.write(b"Hello, world!!!")?;
-
-    Ok(())
+mod tests {
+    #[test]
+    fn test_parse_notifications_valid_input() {
+        let input = "Sit Straight;10\nDrink some water;25".to_string();
+        let result = super::parse_notifications(input).unwrap();
+        assert_eq!(result.len(), 2);
+        assert_eq!(result[0].index, 0);
+        assert_eq!(result[0].title, "Sit Straight");
+        assert_eq!(result[0].interval_secs, 10);
+        assert_eq!(result[1].title, "Drink some water");
+        assert_eq!(result[1].interval_secs, 25);
+    }
 }
