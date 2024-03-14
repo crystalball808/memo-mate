@@ -1,5 +1,8 @@
 use anyhow::{bail, Result};
-use std::time::{Duration, Instant};
+use std::{
+    fmt::Display,
+    time::{Duration, Instant},
+};
 
 pub struct NotificationData {
     index: usize,
@@ -15,6 +18,17 @@ impl NotificationData {
     pub fn reset(&mut self) {
         let reseted = self.instant + Duration::from_secs(self.interval_secs);
         self.instant = reseted;
+    }
+}
+
+impl Display for NotificationData {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{} ---
+{}, interval: {} seconds",
+            self.index, self.title, self.interval_secs
+        )
     }
 }
 pub const NOTIFICATIONS_FILE_PATH: &'static str = "./notifications.memo";

@@ -1,6 +1,6 @@
-use std::{fs::read_to_string, process::exit};
+use std::{any::Any, fs::read_to_string, process::exit};
 
-use clap::Command;
+use clap::{Arg, ArgGroup, Command};
 
 use memo_mate::{
     notification::{parse_notifications, NOTIFICATIONS_FILE_PATH},
@@ -18,7 +18,22 @@ fn cli() -> Command {
                 .visible_alias("ls")
                 .about("List all types of notifications"),
         )
-        .subcommand(Command::new("create").about("Create a new notification type"))
+        .subcommand(
+            Command::new("create")
+                .about("Create a new notification type")
+                .args([
+                    Arg::new("title")
+                        .short('t')
+                        .long("title")
+                        .required(true)
+                        .help("The message that would be shown"),
+                    Arg::new("interval")
+                        .short('i')
+                        .long("interval")
+                        .required(true)
+                        .help("Frequensy of notification in seconds"),
+                ]),
+        )
         .subcommand(Command::new("delete").about("Delete a notification type"))
 }
 
@@ -41,8 +56,35 @@ fn main() {
             start_daemon(notifications);
         }
         Some(("stop", _)) => stop_daemon(),
-        Some(("list", _)) => println!("TODO"),
-        Some(("create", _)) => println!("TODO"),
+        Some(("list", _)) => {
+            let Ok(content) = read_to_string(NOTIFICATIONS_FILE_PATH) else {
+                println!("To start, create a first notification");
+                exit(0);
+            };
+            let notifications = match parse_notifications(content) {
+                Ok(notifications) => notifications,
+                Err(error) => {
+                    eprint!("Failed to get notifications: {error}");
+                    exit(1);
+                }
+            };
+
+            for notification in notifications {
+                println!("{}", notification)
+            }
+        }
+        Some(("create", arg_matches)) => {
+            let Some(title) = arg_matches.get_one::<String>("title") else {
+                eprint!("Please provide a title for new notification");
+                exit(1);
+            };
+            println!("The title: {title}");
+            let Some(interval) = arg_matches.get_one::<String>("interval") else {
+                eprint!("Please provide an interval for new notification");
+                exit(1);
+            };
+            println!("The inteval: {interval}");
+        }
         Some(("delete", _)) => println!("TODO"),
         _ => {}
     }
