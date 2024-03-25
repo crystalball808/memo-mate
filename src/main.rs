@@ -1,6 +1,6 @@
-use std::{any::Any, fs::read_to_string, process::exit};
+use std::{fs::read_to_string, process::exit};
 
-use clap::{Arg, ArgGroup, Command};
+use clap::{Arg, Command};
 
 use memo_mate::{
     notification::{parse_notifications, NOTIFICATIONS_FILE_PATH},
