@@ -78,12 +78,10 @@ fn main() {
                 eprint!("Please provide a title for new notification");
                 exit(1);
             };
-            println!("The title: {title}");
             let Some(interval) = arg_matches.get_one::<String>("interval") else {
                 eprint!("Please provide an interval for new notification");
                 exit(1);
             };
-            println!("The inteval: {interval}");
 
             let mut content = read_to_string(NOTIFICATIONS_FILE_PATH).unwrap_or(String::new());
 
