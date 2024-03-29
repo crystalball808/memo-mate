@@ -37,8 +37,8 @@ pub fn parse_notifications(content: String) -> Result<Vec<NotificationData>> {
     // Sit Straight;10
     // Drink some water;25
     let rows: Vec<NotificationData> = content
+        .trim()
         .split("\n")
-        .into_iter()
         .enumerate()
         .map(|(index, line)| {
             let args: Vec<&str> = line.split(";").collect();
@@ -64,10 +64,15 @@ pub fn parse_notifications(content: String) -> Result<Vec<NotificationData>> {
     Ok(rows)
 }
 
+pub fn append_notification(content: &mut String, title: &str, interval: &str) {
+    content.push_str(&format!("{title};{interval}\n"));
+}
+
 mod tests {
+
     #[test]
     fn test_parse_notifications_valid_input() {
-        let input = "Sit Straight;10\nDrink some water;25".to_string();
+        let input = "Sit Straight;10\nDrink some water;25\n".to_string();
         let result = super::parse_notifications(input).unwrap();
         assert_eq!(result.len(), 2);
         assert_eq!(result[0].index, 0);
@@ -75,5 +80,14 @@ mod tests {
         assert_eq!(result[0].interval_secs, 10);
         assert_eq!(result[1].title, "Drink some water");
         assert_eq!(result[1].interval_secs, 25);
+    }
+
+    #[test]
+    fn test_append_notification() {
+        let mut content = "Sit Straight;10\nDrink some water;25\n".to_string();
+        let title = "Foo";
+        let interval = "300";
+        super::append_notification(&mut content, title, interval);
+        assert_eq!(content, "Sit Straight;10\nDrink some water;25\nFoo;300\n")
     }
 }

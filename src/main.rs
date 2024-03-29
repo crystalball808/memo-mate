@@ -3,7 +3,7 @@ use std::{fs::read_to_string, process::exit};
 use clap::{Arg, Command};
 
 use memo_mate::{
-    notification::{parse_notifications, NOTIFICATIONS_FILE_PATH},
+    notification::{append_notification, parse_notifications, NOTIFICATIONS_FILE_PATH},
     start_daemon, stop_daemon,
 };
 
@@ -84,6 +84,12 @@ fn main() {
                 exit(1);
             };
             println!("The inteval: {interval}");
+
+            let mut content = read_to_string(NOTIFICATIONS_FILE_PATH).unwrap_or(String::new());
+
+            append_notification(&mut content, title, interval);
+
+            unimplemented!()
         }
         Some(("delete", _)) => println!("TODO"),
         _ => {}
