@@ -87,7 +87,9 @@ mod tests {
         let mut content = "Sit Straight;10\nDrink some water;25\n".to_string();
         let title = "Foo";
         let interval = "300";
+
         super::append_notification(&mut content, title, interval);
+
         assert_eq!(content, "Sit Straight;10\nDrink some water;25\nFoo;300\n")
     }
 }
