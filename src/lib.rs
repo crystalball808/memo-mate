@@ -10,6 +10,10 @@ pub mod notification;
 const PID_PATH: &str = "/tmp/memo-mate.pid";
 
 pub fn start_daemon(mut notifications: Vec<NotificationData>) {
+    println!("Starting a daemong with notifications:");
+    for notification in &notifications {
+        println!("{notification}")
+    }
     let stdout = File::create("/tmp/memo-mate.out").unwrap();
     let stderr = File::create("/tmp/memo-mate.err").unwrap();
 

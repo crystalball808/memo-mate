@@ -1,4 +1,4 @@
-use std::{fs::read_to_string, process::exit};
+use std::{fs, io::Write, process::exit};
 
 use clap::{Arg, Command};
 
@@ -42,7 +42,7 @@ fn main() {
 
     match matches.subcommand() {
         Some(("start", _)) => {
-            let Ok(content) = read_to_string(NOTIFICATIONS_FILE_PATH) else {
+            let Ok(content) = fs::read_to_string(NOTIFICATIONS_FILE_PATH) else {
                 println!("To start, create a first notification");
                 exit(0);
             };
@@ -57,7 +57,7 @@ fn main() {
         }
         Some(("stop", _)) => stop_daemon(),
         Some(("list", _)) => {
-            let Ok(content) = read_to_string(NOTIFICATIONS_FILE_PATH) else {
+            let Ok(content) = fs::read_to_string(NOTIFICATIONS_FILE_PATH) else {
                 println!("To start, create a first notification");
                 exit(0);
             };
@@ -83,11 +83,20 @@ fn main() {
                 exit(1);
             };
 
-            let mut content = read_to_string(NOTIFICATIONS_FILE_PATH).unwrap_or(String::new());
+            let mut content = fs::read_to_string(NOTIFICATIONS_FILE_PATH).unwrap_or(String::new());
 
             append_notification(&mut content, title, interval);
-
-            unimplemented!()
+            let mut file_handle = match fs::File::create(NOTIFICATIONS_FILE_PATH) {
+                Ok(file_handle) => file_handle,
+                Err(error) => {
+                    eprint!("Failed to open the memo file to save: {error}");
+                    exit(1);
+                }
+            };
+            if let Err(error) = file_handle.write(content.as_bytes()) {
+                eprint!("Failed to write the changes to the memo file: {error}");
+                exit(1);
+            };
         }
         Some(("delete", _)) => println!("TODO"),
         _ => {}
