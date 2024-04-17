@@ -1,7 +1,6 @@
-use std::{fs::File, thread};
+use std::thread;
 
 use core::time;
-use daemonize::Daemonize;
 use notification::NotificationData;
 use notify_rust::Notification;
 
@@ -14,19 +13,19 @@ pub fn start_daemon(mut notifications: Vec<NotificationData>) {
     for notification in &notifications {
         println!("{notification}")
     }
-    let stdout = File::create("/tmp/memo-mate.out").unwrap();
-    let stderr = File::create("/tmp/memo-mate.err").unwrap();
+    // let stdout = File::create("/tmp/memo-mate.out").unwrap();
+    // let stderr = File::create("/tmp/memo-mate.err").unwrap();
 
-    let daemon = Daemonize::new()
-        .pid_file(PID_PATH)
-        .stdout(stdout)
-        .stderr(stderr)
-        .umask(0o027);
-
-    match daemon.start() {
-        Ok(_) => println!("Daemon started successfully"),
-        Err(e) => eprintln!("Error starting daemon: {}", e),
-    }
+    // let daemon = Daemonize::new()
+    //     .pid_file(PID_PATH)
+    //     .stdout(stdout)
+    //     .stderr(stderr)
+    //     .umask(0o027);
+    //
+    // match daemon.start() {
+    //     Ok(_) => println!("Daemon started successfully"),
+    //     Err(e) => eprintln!("Error starting daemon: {}", e),
+    // }
 
     loop {
         for notification_data in notifications.iter_mut() {
