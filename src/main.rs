@@ -1,10 +1,9 @@
-use std::{fs, io::Write, process::exit};
-
 use clap::{Arg, Command};
+use std::{fs, io::Write, process::exit};
 
 use memo_mate::{
     notification::{append_notification, parse_notifications, NOTIFICATIONS_FILE_PATH},
-    start_daemon, stop_daemon,
+    start,
 };
 
 fn cli() -> Command {
@@ -53,9 +52,8 @@ fn main() {
                     exit(1);
                 }
             };
-            start_daemon(notifications);
+            start(notifications);
         }
-        Some(("stop", _)) => stop_daemon(),
         Some(("list", _)) => {
             let Ok(content) = fs::read_to_string(NOTIFICATIONS_FILE_PATH) else {
                 println!("To start, create a first notification");
