@@ -127,6 +127,6 @@ mod tests {
         ];
 
         let output = super::stringify_notifications(notifications);
-        assert_eq!(output, "Sit Straight;10\nDrink some water;25")
+        assert_eq!(output, "Sit Straight;10\nDrink some water;25\n")
     }
 }
