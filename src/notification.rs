@@ -1,12 +1,9 @@
 use anyhow::{bail, Result};
-use std::{
-    fmt::Display,
-    time::{Duration, Instant},
-};
+use std::time::{Duration, Instant};
 
 pub struct NotificationData {
-    index: usize,
-    interval_secs: u64,
+    pub index: usize,
+    pub interval_secs: u64,
     pub title: String,
     instant: Instant,
 }
@@ -21,17 +18,24 @@ impl NotificationData {
     }
 }
 
-impl Display for NotificationData {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{} ---
-{}, interval: {} seconds",
-            self.index, self.title, self.interval_secs
-        )
+impl ToString for NotificationData {
+    fn to_string(&self) -> String {
+        return format!("{};{}", self.title, self.interval_secs);
     }
 }
 pub const NOTIFICATIONS_FILE_PATH: &'static str = "./notifications.memo";
+
+pub fn stringify_notifications(notifications: Vec<NotificationData>) -> String {
+    let mut result = notifications
+        .iter()
+        .map(|notification| notification.to_string())
+        .collect::<Vec<String>>()
+        .join("\n");
+
+    result.push_str("\n");
+
+    result
+}
 
 pub fn parse_notifications(content: String) -> Result<Vec<NotificationData>> {
     // Sit Straight;10
@@ -67,6 +71,15 @@ pub fn parse_notifications(content: String) -> Result<Vec<NotificationData>> {
 pub fn append_notification(content: &mut String, title: &str, interval: &str) {
     content.push_str(&format!("{title};{interval}\n"));
 }
+pub fn delete_notification(
+    notifications: Vec<NotificationData>,
+    index: usize,
+) -> Vec<NotificationData> {
+    return notifications
+        .into_iter()
+        .filter(|notification| return notification.index != index)
+        .collect();
+}
 
 mod tests {
 
@@ -91,5 +104,29 @@ mod tests {
         super::append_notification(&mut content, title, interval);
 
         assert_eq!(content, "Sit Straight;10\nDrink some water;25\nFoo;300\n")
+    }
+
+    #[test]
+    fn test_stringify_notifications() {
+        use super::NotificationData;
+        use std::time::Instant;
+
+        let notifications = vec![
+            NotificationData {
+                title: "Sit Straight".to_string(),
+                index: 1,
+                interval_secs: 10,
+                instant: Instant::now(),
+            },
+            NotificationData {
+                title: "Drink some water".to_string(),
+                index: 2,
+                interval_secs: 25,
+                instant: Instant::now(),
+            },
+        ];
+
+        let output = super::stringify_notifications(notifications);
+        assert_eq!(output, "Sit Straight;10\nDrink some water;25")
     }
 }

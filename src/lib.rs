@@ -3,13 +3,16 @@ use std::thread;
 use core::time;
 use notification::NotificationData;
 use notify_rust::Notification;
-
 pub mod notification;
 
 pub fn start(mut notifications: Vec<NotificationData>) {
     println!("Starting a daemong with notifications:");
     for notification in &notifications {
-        println!("{notification}")
+        println!(
+            "{} ---
+{}, interval: {} seconds",
+            notification.index, notification.title, notification.interval_secs
+        )
     }
 
     loop {
